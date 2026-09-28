@@ -1,0 +1,1236 @@
+:root {
+  --bg: #f2f5f8;
+  --card: #ffffff;
+  --text: #17233b;
+  --text-soft: #6b7a90;
+  --text-faint: #9aa8bb;
+  --line: #eef1f5;
+  --blue: #1f8ff4;
+  --blue-soft: #eaf6fb;
+  --green: #21c85b;
+  --green-soft: rgba(33, 200, 91, 0.12);
+  --red: #e5484d;
+  --orange: #f59e0b;
+  --maroon: #b3262e;
+  --shadow-card: 0 2px 10px rgba(23, 35, 59, 0.05);
+  --shadow-float: 0 8px 28px rgba(23, 35, 59, 0.12);
+  --radius: 18px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  background: #e9edf2;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  box-shadow: 0 0 30px rgba(23, 35, 59, 0.08);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+/* ===================== HEADER ===================== */
+.header {
+  height: 62px;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px rgba(23, 35, 59, 0.02);
+  display: grid;
+  place-items: center;
+  color: var(--blue);
+}
+
+.logo-badge svg {
+  width: 20px;
+  height: 20px;
+}
+
+.header-text h1 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.header-text span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
+  letter-spacing: 0.4px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 4px var(--green-soft);
+  animation: soft-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes soft-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--green-soft); }
+  50% { box-shadow: 0 0 0 6px var(--green-soft); }
+}
+
+/* ===================== CONTEÚDO ===================== */
+.content {
+  padding: 18px 16px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.view[hidden] {
+  display: none;
+}
+
+/* ---------- Mapa ---------- */
+.map-wrap {
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  background: #dde6ee;
+  position: relative;
+}
+
+.map {
+  height: 235px;
+  width: 100%;
+}
+
+/* ---------- Card Origem / Destino ---------- */
+.route-card {
+  position: relative;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 16px 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+}
+
+.route-dash {
+  position: absolute;
+  left: 28px;
+  top: 34px;
+  bottom: 34px;
+  width: 2px;
+  border-left: 2px dashed #c7d4e0;
+}
+
+.route-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.route-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.pin-origin {
+  background: var(--green);
+  box-shadow: 0 0 0 3px var(--green-soft);
+}
+
+.pin-flag {
+  background: transparent;
+}
+
+.pin-flag svg {
+  width: 18px;
+  height: 18px;
+  color: var(--red);
+  fill: var(--red);
+}
+
+.field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  background: var(--blue-soft);
+  border-radius: 13px;
+  height: 44px;
+  padding: 0 12px;
+  gap: 6px;
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.field:focus-within {
+  box-shadow: 0 0 0 2px rgba(31, 143, 244, 0.35);
+}
+
+.field input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.field input::placeholder {
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  color: var(--blue);
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.icon-btn:hover { background: rgba(31, 143, 244, 0.1); }
+.icon-btn:active { transform: scale(0.94); }
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.swap-btn {
+  align-self: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.swap-btn:hover { background: #ddf0fb; }
+.swap-btn:active { transform: rotate(180deg) scale(0.95); }
+
+.swap-btn svg {
+  width: 21px;
+  height: 21px;
+}
+
+/* ---------- Próximas viagens ---------- */
+.trips-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trips-empty {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 30px 20px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--text-soft);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.trips-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.trips-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.trips-title svg {
+  width: 19px;
+  height: 19px;
+  color: var(--blue);
+}
+
+/* Indicador "ao vivo" da seção de ônibus em curso */
+.live-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px var(--green-soft);
+  animation: soft-pulse 2.4s ease-in-out infinite;
+}
+
+.trips-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+/* ---------- Cards de viagem ---------- */
+.trip-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 15px 14px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  cursor: pointer;
+}
+
+.trip-card:hover {
+  box-shadow: var(--shadow-float);
+  transform: translateY(-1px);
+}
+
+.trip-card:active {
+  transform: scale(0.985);
+}
+
+.bus-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.bus-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.bus-orange {
+  background: var(--orange);
+}
+
+.bus-maroon {
+  background: var(--maroon);
+}
+
+.trip-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.trip-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.trip-route {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-soft);
+  margin-top: 1px;
+}
+
+.trip-times {
+  display: flex;
+  gap: 14px;
+  margin-top: 7px;
+}
+
+.trip-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.trip-time svg {
+  width: 13px;
+  height: 13px;
+  color: var(--text-faint);
+}
+
+.trip-meta {
+  display: flex;
+  gap: 14px;
+  margin-top: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.trip-side {
+  min-width: 46px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  padding: 0 2px 2px 0;
+}
+
+.trip-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--blue);
+  background: var(--blue-soft);
+  border-radius: 12px;
+  padding: 4px 9px;
+}
+
+.trip-chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--text-faint);
+}
+
+/* ===================== NAVEGAÇÃO INFERIOR ===================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  z-index: 40;
+}
+
+.bottom-nav-inner {
+  max-width: 430px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 8px 6px max(8px, env(safe-area-inset-bottom));
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+  color: var(--text-faint);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: color 0.15s ease;
+}
+
+.nav-icon {
+  position: relative;
+  width: 42px;
+  height: 30px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s ease;
+}
+
+.nav-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.nav-item.active {
+  color: var(--blue);
+}
+
+.nav-item.active .nav-icon {
+  background: var(--blue-soft);
+}
+
+.nav-item:active .nav-icon {
+  transform: scale(0.92);
+}
+
+.notif-dot {
+  position: absolute;
+  top: 3px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 1.5px solid var(--card);
+}
+
+/* ===================== MODAL ===================== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: end center;
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 26, 43, 0.45);
+}
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  max-height: 82vh;
+  background: var(--card);
+  border-radius: 24px 24px 0 0;
+  padding: 22px 20px max(22px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  animation: slide-up 0.22s ease;
+  overflow: hidden;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  color: var(--text-soft);
+}
+
+.modal-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 24px;
+}
+
+.modal-head .bus-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.modal-head .bus-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.modal-route {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.modal-times {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.modal-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--blue);
+  background: var(--blue-soft);
+  border-radius: 10px;
+  padding: 4px 9px;
+}
+
+.modal-stops-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 18px 2px 10px;
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.modal-card > .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  margin: -4px -4px 0 0;
+}
+
+.modal-stop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 2px;
+}
+
+.stop-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.stop-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 3px rgba(31, 143, 244, 0.15);
+  margin-top: 5px;
+}
+
+.stop-dot.origin { background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+.stop-dot.dest { background: var(--red); box-shadow: 0 0 0 3px rgba(229, 72, 77, 0.15); }
+
+.stop-line {
+  flex: 1;
+  width: 2px;
+  background: #e2e8f0;
+  margin-top: 2px;
+}
+
+.stop-name {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.stop-time {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+/* ===================== TOAST ===================== */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 92px;
+  transform: translateX(-50%) translateY(12px);
+  background: #1b2735;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-float);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 70;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===================== MARCADORES DO MAPA ===================== */
+.map-marker {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 6px rgba(15, 25, 40, 0.35);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.map-marker.green  { background: var(--green); }
+.map-marker.orange { background: var(--orange); }
+
+.map-marker.blue {
+  background: var(--blue);
+}
+
+.map-marker.blue svg {
+  width: 12px;
+  height: 12px;
+  color: #fff;
+}
+
+.map-marker.user {
+  width: 18px;
+  height: 18px;
+  background: var(--blue);
+  border: 3px solid #fff;
+}
+
+.map-marker.user::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  background: rgba(31, 143, 244, 0.25);
+  animation: user-ring 1.8s ease-out infinite;
+}
+
+.map-marker.dest {
+  background: var(--red);
+}
+
+@keyframes user-ring {
+  0% { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.maplibregl-popup-content {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 9px 12px;
+  box-shadow: var(--shadow-float);
+}
+
+.maplibregl-popup-content strong {
+  font-weight: 700;
+  display: block;
+}
+
+/* ===================== RESPONSIVIDADE ===================== */
+@media (max-width: 430px) {
+  .app {
+    box-shadow: none;
+  }
+
+  .header {
+    max-width: 100%;
+  }
+
+  .bottom-nav-inner {
+    max-width: 100%;
+  }
+
+  .map {
+    height: 210px;
+  }
+}
+
+@media (min-width: 431px) {
+  /* mantém largura de app fixa e centraliza */
+}
+
+::selection {
+  background: rgba(31, 143, 244, 0.25);
+}
+
+/* ===================== LINKS / CARDS COMO <a> ===================== */
+a {
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===================== CABEÇALHO DE PÁGINA ===================== */
+.page-head {
+  padding: 2px 2px 0;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.page-sub {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ===================== PÁGINA LINHAS ===================== */
+.linhas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.period-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 2px 0;
+}
+
+.period-name {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text);
+}
+
+.period-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+.period-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.linha-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.linha-card:hover {
+  box-shadow: var(--shadow-float);
+  transform: translateY(-1px);
+}
+
+.linha-card:active {
+  transform: scale(0.985);
+}
+
+.linha-card .bus-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.linha-card .bus-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.bus-blue {
+  background: var(--blue);
+}
+
+.linha-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.linha-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.linha-route {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-soft);
+  margin-top: 1px;
+}
+
+.linha-meta {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.linha-meta .dot-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.linha-dep {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue);
+  background: var(--blue-soft);
+  border-radius: 11px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.linha-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.linha-chevron {
+  width: 17px;
+  height: 17px;
+  color: var(--text-faint);
+}
+
+.linhas-empty {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 30px 20px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--text-soft);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ===================== PÁGINA ROTA ===================== */
+.back-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 7px 13px 7px 9px;
+  box-shadow: var(--shadow-card);
+  transition: background 0.15s ease;
+}
+
+.back-btn:hover { background: var(--blue-soft); color: var(--blue); }
+.back-btn:active { transform: scale(0.97); }
+
+.back-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.rota-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 2px;
+}
+
+.rota-head .bus-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+}
+
+.rota-head .bus-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.rota-head-text {
+  min-width: 0;
+}
+
+.rota-head-text .modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.rota-head-text .modal-route {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.rota-map-wrap {
+  box-shadow: var(--shadow-card);
+}
+
+.rota-map-wrap .map {
+  height: 320px;
+}
+
+.rota-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rota-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 7px 12px;
+  box-shadow: var(--shadow-card);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rota-chip svg {
+  width: 14px;
+  height: 14px;
+  color: var(--blue);
+}
+
+.rota-stops {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 12px 14px;
+}
+
+.modal-stop.last .stop-line {
+  display: none;
+}
+
+.modal-stop.stop-missing .stop-name {
+  color: var(--text-faint);
+}
+
+.rota-empty {
+  font-size: 13px;
+  color: var(--text-faint);
+  padding: 8px 4px;
+  font-weight: 500;
+}
+
+/* ===================== MARCADORES DA ROTA ===================== */
+.map-marker.route-point {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+}
+
+.map-marker.route-point.origin {
+  width: 22px;
+  height: 22px;
+  background: var(--green);
+}
+
+.map-marker.route-point.dest {
+  width: 22px;
+  height: 22px;
+  background: var(--red);
+}
+
+/* ===================== ÔNIBUS (POSIÇÃO ESTIMADA) ===================== */
+.map-marker.bus-marker {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 2.5px solid #fff;
+  box-shadow: 0 4px 14px rgba(15, 25, 40, 0.45);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  cursor: default;
+  z-index: 3;
+}
+
+.map-marker.bus-marker svg {
+  width: 19px;
+  height: 19px;
+}
+
+.map-marker.bus-marker::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: rgba(31, 143, 244, 0.25);
+  animation: bus-ring 1.8s ease-out infinite;
+}
+
+.map-marker.bus-marker.bus-orange::after { background: rgba(245, 158, 11, 0.25); }
+.map-marker.bus-marker.bus-maroon::after { background: rgba(179, 38, 46, 0.25); }
+
+@keyframes bus-ring {
+  0% { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ===================== BOTÃO DE AÇÃO DO MODAL ===================== */
+.modal-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 13px;
+  border-radius: 14px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.modal-action:hover { background: #187fe0; }
+.modal-action:active { transform: scale(0.98); }
+
+.modal-action svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* ===================== SOBREPOSIÇÃO DE CARGA DO MAPA ===================== */
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #dde6ee;
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--radius);
+  z-index: 1;
+}
+
+.map-loading svg {
+  width: 22px;
+  height: 22px;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+  vertical-align: -5px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

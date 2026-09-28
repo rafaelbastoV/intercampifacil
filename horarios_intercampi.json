@@ -1,0 +1,294 @@
+{
+  "projeto": "Projeto Intercampi",
+  "campus": [
+    "Campus 296 Urca",
+    "Campus 436 Urca",
+    "Campus 458 Urca"
+  ],
+  "periodos": [
+    {
+      "periodo": "Manhã",
+      "linhas": [
+        {
+          "nome": "ÔNIBUS URBANO I",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "06:40"
+          },
+          "novoHorario": false,
+          "paradas": [
+            { "nome": "Campus 296 Urca", "horarioEstimado": "06:40", "ordem": 1 },
+            { "nome": "Central do Brasil (Quiosques da Central)", "horarioEstimado": "07:00", "ordem": 2 },
+            { "nome": "São Cristóvão - Estação de Metrô", "horarioEstimado": "07:05", "ordem": 3 },
+            { "nome": "HUGG (R. Silva Ramos - Fundos do Hospital)", "horarioEstimado": "07:20", "ordem": 4 },
+            { "nome": "Instituto Biomédico", "horarioEstimado": "07:35", "ordem": 5 },
+            { "nome": "Campus 296 Urca", "horarioEstimado": "07:55", "ordem": 6 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "08:00", "ordem": 7 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO II",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "06:50"
+          },
+          "novoHorario": false,
+          "paradas": [
+            { "nome": "Campus 296 Urca", "horarioEstimado": "06:55", "ordem": 1 },
+            { "nome": "R. General Caldwell, em frente ao Colégio Estadual Júlia Kubtschek", "horarioEstimado": "07:20", "ordem": 2 },
+            { "nome": "Instituto Biomédico", "horarioEstimado": "07:25", "ordem": 3 },
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "07:30", "ordem": 4 },
+            { "nome": "Campus 296 Urca", "horarioEstimado": "07:45", "ordem": 5 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "07:50", "ordem": 6 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS I - ESPECIAL - ALMOÇO",
+          "partida": {
+            "local": "Campus 436 Urca - Restaurante Escola",
+            "horario": "11:20"
+          },
+          "novoHorario": false,
+          "paradas": [
+            { "nome": "Instituto Biomédico", "horarioEstimado": "11:50", "ordem": 1 },
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "12:05", "ordem": 2 },
+            { "nome": "Campus 436 Urca - Restaurante Escola", "horarioEstimado": "12:15", "ordem": 3 }
+          ]
+        }
+      ]
+    },
+    {
+      "periodo": "Tarde",
+      "linhas": [
+        {
+          "nome": "ÔNIBUS URBANO I",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "12:20"
+          },
+          "novoHorario": false,
+          "paradas": [
+            { "nome": "Campus 296 Urca", "horarioEstimado": "12:25", "ordem": 1 },
+            { "nome": "Central do Brasil (Quiosques da Central)", "horarioEstimado": "12:40", "ordem": 2 },
+            { "nome": "São Cristóvão - Estação de Metrô", "horarioEstimado": "12:45", "ordem": 3 },
+            { "nome": "HUGG (R. Silva Ramos - Fundos do Hospital)", "horarioEstimado": "13:00", "ordem": 4 },
+            { "nome": "Instituto Biomédico", "horarioEstimado": "13:15", "ordem": 5 },
+            { "nome": "Campus 296 Urca", "horarioEstimado": "13:35", "ordem": 6 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "13:40", "ordem": 7 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO II",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "12:20"
+          },
+          "novoHorario": false,
+          "paradas": [
+            { "nome": "Instituto Biomédico", "horarioEstimado": "12:45", "ordem": 1 },
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "13:00", "ordem": 2 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "13:10", "ordem": 3 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO II",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "13:40"
+          },
+          "novoHorario": false,
+          "paradas": [
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "13:50", "ordem": 1 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "14:00", "ordem": 2 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO I",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "16:30"
+          },
+          "novoHorario": true,
+          "paradas": [
+            { "nome": "Pça XV (Fórum)", "horarioEstimado": "16:45", "ordem": 1 },
+            { "nome": "Central do Brasil", "horarioEstimado": "16:55", "ordem": 2 },
+            { "nome": "Terminal Gentileza", "horarioEstimado": "17:10", "ordem": 3 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "17:30", "ordem": 4 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO II",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "17:20"
+          },
+          "novoHorario": false,
+          "paradas": [
+            { "nome": "Campus 296 Urca", "horarioEstimado": "17:22", "ordem": 1 },
+            { "nome": "Aterro do Flamengo - (1º ponto de ônibus)", "horarioEstimado": "17:25", "ordem": 2 },
+            { "nome": "Presidente Wilson (Consulado)", "horarioEstimado": "17:40", "ordem": 3 },
+            { "nome": "Praça XV (Fórum)", "horarioEstimado": "17:45", "ordem": 4 },
+            { "nome": "Presidente Vargas (PROGEPE)", "horarioEstimado": "17:55", "ordem": 5 },
+            { "nome": "Central do Brasil", "horarioEstimado": "18:05", "ordem": 6 },
+            { "nome": "Cidade Nova", "horarioEstimado": "18:15", "ordem": 7 },
+            { "nome": "Mariz e Barros (Padaria)", "horarioEstimado": "18:30", "ordem": 8 },
+            { "nome": "Mariz e Barros (Ponto SENAI)", "horarioEstimado": "18:35", "ordem": 9 },
+            { "nome": "Mariz e Barros com São Francisco Xavier", "horarioEstimado": "18:40", "ordem": 10 },
+            { "nome": "Igreja de São Francisco Xavier", "horarioEstimado": "18:45", "ordem": 11 },
+            { "nome": "HUGG (R. Silva Ramos - Fundos do Hospital)", "horarioEstimado": "18:50", "ordem": 12 },
+            { "nome": "Instituto Biomédico", "horarioEstimado": "19:00", "ordem": 13 },
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "19:20", "ordem": 14 },
+            { "nome": "Campus 296 Urca", "horarioEstimado": "19:32", "ordem": 15 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "19:35", "ordem": 16 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO I",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "17:40"
+          },
+          "novoHorario": true,
+          "paradas": [
+            { "nome": "EEAP (R. Xavier Sigaud, 290, Urca)", "horarioEstimado": "17:45", "ordem": 1 },
+            { "nome": "Shopping Rio Sul", "horarioEstimado": "17:50", "ordem": 2 },
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "18:00", "ordem": 3 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "18:10", "ordem": 4 }
+          ]
+        }
+      ]
+    },
+    {
+      "periodo": "Noite",
+      "linhas": [
+        {
+          "nome": "ÔNIBUS URBANO I",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "18:40"
+          },
+          "novoHorario": true,
+          "paradas": [
+            { "nome": "EEAP (R. Xavier Sigaud, 290, Urca)", "horarioEstimado": "18:45", "ordem": 1 },
+            { "nome": "Shopping Rio Sul", "horarioEstimado": "18:50", "ordem": 2 },
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "19:00", "ordem": 3 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "19:10", "ordem": 4 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO II",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "19:30"
+          },
+          "novoHorario": true,
+          "paradas": [
+            { "nome": "Pça XV (Fórum)", "horarioEstimado": "19:45", "ordem": 1 },
+            { "nome": "Central do Brasil", "horarioEstimado": "19:55", "ordem": 2 },
+            { "nome": "Terminal Gentileza", "horarioEstimado": "20:10", "ordem": 3 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "20:30", "ordem": 4 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO I",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "19:40"
+          },
+          "novoHorario": true,
+          "paradas": [
+            { "nome": "EEAP (R. Xavier Sigaud, 290, Urca)", "horarioEstimado": "19:45", "ordem": 1 },
+            { "nome": "Shopping Rio Sul", "horarioEstimado": "19:50", "ordem": 2 },
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "20:00", "ordem": 3 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "20:10", "ordem": 4 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO I",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "20:40"
+          },
+          "novoHorario": true,
+          "paradas": [
+            { "nome": "EEAP (R. Xavier Sigaud, 290, Urca)", "horarioEstimado": "20:45", "ordem": 1 },
+            { "nome": "Shopping Rio Sul", "horarioEstimado": "20:50", "ordem": 2 },
+            { "nome": "CCJP (R. Voluntários da Pátria, 59 - Perto da Loja KFC)", "horarioEstimado": "21:00", "ordem": 3 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "21:10", "ordem": 4 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO II",
+          "partida": {
+            "local": "Campus 436 Urca",
+            "horario": "20:45"
+          },
+          "novoHorario": true,
+          "paradas": [
+            { "nome": "Pça XV (Fórum)", "horarioEstimado": "21:00", "ordem": 1 },
+            { "nome": "Central do Brasil", "horarioEstimado": "21:10", "ordem": 2 },
+            { "nome": "Terminal Gentileza", "horarioEstimado": "21:25", "ordem": 3 },
+            { "nome": "Campus 436 Urca", "horarioEstimado": "21:45", "ordem": 4 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO I - NOVA IGUAÇU",
+          "partida": {
+            "local": "Campus 458 Urca",
+            "horario": "22:20"
+          },
+          "novoHorario": false,
+          "retorno": {
+            "local": "Campus 458 Urca",
+            "horario": "00:55"
+          },
+          "paradas": [
+            { "nome": "Praia de Botafogo (1º ponto de ônibus)", "horarioEstimado": "22:26", "ordem": 1 },
+            { "nome": "Instituto Biomédico (R. Frei Caneca, 94 - Centro)", "horarioEstimado": "22:33", "ordem": 2 },
+            { "nome": "Central do Brasil (Quiosques da Central)", "horarioEstimado": "22:42", "ordem": 3 },
+            { "nome": "Avenida Brasil (Antigo Porcão)", "horarioEstimado": "23:05", "ordem": 4 },
+            { "nome": "Avenida Brasil (Guadalupe)", "horarioEstimado": "23:17", "ordem": 5 },
+            { "nome": "Ricardo de Albuquerque (Ponto principal)", "horarioEstimado": "23:24", "ordem": 6 },
+            { "nome": "Anchieta (Ponto principal)", "horarioEstimado": "23:29", "ordem": 7 },
+            { "nome": "Olinda (Praça de Olinda)", "horarioEstimado": "23:34", "ordem": 8 },
+            { "nome": "Nilópolis (Estação de Nilópolis)", "horarioEstimado": "23:36", "ordem": 9 },
+            { "nome": "Edson Passos (Estação Edson Passos)", "horarioEstimado": "23:39", "ordem": 10 },
+            { "nome": "Mesquita (Estação de Mesquita)", "horarioEstimado": "23:44", "ordem": 11 },
+            { "nome": "Nova Iguaçu (Estação de Nova Iguaçu)", "horarioEstimado": "23:54", "ordem": 12 }
+          ]
+        },
+        {
+          "nome": "ÔNIBUS URBANO II - CAMPO GRANDE",
+          "partida": {
+            "local": "Campus 458 Urca",
+            "horario": "22:20"
+          },
+          "novoHorario": false,
+          "retorno": {
+            "local": "Campus 458 Urca",
+            "horario": "01:00"
+          },
+          "paradas": [
+            { "nome": "Praia de Botafogo (1º ponto de ônibus)", "horarioEstimado": "22:25", "ordem": 1 },
+            { "nome": "Central do Brasil (\"Balança, mas não cai\")", "horarioEstimado": "22:34", "ordem": 2 },
+            { "nome": "Cidade Nova - Estação", "horarioEstimado": "22:36", "ordem": 3 },
+            { "nome": "São Cristóvão", "horarioEstimado": "22:39", "ordem": 4 },
+            { "nome": "Méier - Estação", "horarioEstimado": "22:50", "ordem": 5 },
+            { "nome": "Engenho de Dentro - Estação", "horarioEstimado": "22:53", "ordem": 6 },
+            { "nome": "Piedade - Estação", "horarioEstimado": "22:57", "ordem": 7 },
+            { "nome": "Cascadura - Estação", "horarioEstimado": "23:01", "ordem": 8 },
+            { "nome": "Madureira - Estação", "horarioEstimado": "23:03", "ordem": 9 },
+            { "nome": "Bento Ribeiro - Estação", "horarioEstimado": "23:07", "ordem": 10 },
+            { "nome": "Deodoro (Praça de Deodoro)", "horarioEstimado": "23:15", "ordem": 11 },
+            { "nome": "Magalhães Bastos (Ponto principal)", "horarioEstimado": "23:22", "ordem": 12 },
+            { "nome": "Realengo (Praça do Canhão)", "horarioEstimado": "23:27", "ordem": 13 },
+            { "nome": "Padre Miguel - Estação", "horarioEstimado": "23:31", "ordem": 14 },
+            { "nome": "Bangu - Estação", "horarioEstimado": "23:35", "ordem": 15 },
+            { "nome": "Senador Camará - Estação", "horarioEstimado": "23:40", "ordem": 16 },
+            { "nome": "Campo Grande (Centro)", "horarioEstimado": "23:55", "ordem": 17 }
+          ]
+        }
+      ]
+    }
+  ]
+}
