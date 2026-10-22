@@ -436,6 +436,7 @@ var linhasCount = $('linhas-count');
     homeTimer = setInterval(function () {
       refreshNextTrip();
       renderHomeTrips();
+      renderDefaultRoute();
     }, 15000);
   }
 
@@ -1211,6 +1212,7 @@ var linhasCount = $('linhas-count');
     nextTripCard.hidden = true;
     nextTripCard.innerHTML = '';
     renderHomeTrips();   /* sem destino: voltam as rotas padrão das linhas */
+    renderDefaultRoute();   /* e a rota do próximo ônibus volta ao destaque */
   }
 
   /* Confere o valor digitado com a lista oficial de paradas. usada no blur
@@ -1317,6 +1319,42 @@ var linhasCount = $('linhas-count');
      Rota do próximo intercampi no mapa da Home
      ============================================================= */
   var ROUTE_HEX = { blue: '#1f8ff4', orange: '#f59e0b', maroon: '#b3262e' };
+  var autoRouteSig = null;
+
+  /* Estado padrão da Home: sem destino, a rota do próximo ônibus que vai
+     sair fica destacada por cima das rotas padrão. O marcador da camada
+     cobre o caso de a rota ter sido apagada (destino limpo, troca de
+     tema) com a mesma assinatura de viagem. */
+  function renderDefaultRoute() {
+    if (destStopName || loadError || !lines.length || !homeMap) return;
+    var picks = nextTrips(1);
+    if (!picks.length) return;
+    var sig = picks[0].line.id;
+    var hasLayer = false;
+    try { hasLayer = !!homeMap.getLayer('home-route'); } catch (e) { hasLayer = false; }
+    if (sig === autoRouteSig && hasLayer) return;
+    autoRouteSig = sig;
+    drawHomeRoute(picks[0].line);
+  }
+
+  /* Espera o estilo do mapa ficar pronto para receber camadas. O evento
+     'load' acontece uma única vez por estilo e isStyleLoaded() oscila
+     durante animações de câmera (fitBounds), então o poll cobre o caso
+     de a resposta chegar quando os dois já passaram. */
+  function onMapReady(map, fn) {
+    if (!map || map._removed) return;
+    var done = false;
+    var run = function () { if (done) return; done = true; fn(); };
+    try { if (map.isStyleLoaded()) { run(); return; } } catch (e) { /* noop */ }
+    map.once('load', run);
+    var tries = 0;
+    var poll = setInterval(function () {
+      if (done || !map || map._removed || ++tries > 100) { clearInterval(poll); return; }
+      try {
+        if (map.isStyleLoaded()) { clearInterval(poll); run(); }
+      } catch (e) { clearInterval(poll); }
+    }, 100);
+  }
 
   function clearHomeRoute() {
     homeRouteToken++;
@@ -1396,8 +1434,7 @@ var linhasCount = $('linhas-count');
             console.warn('Falha ao desenhar rota na home:', e);
           }
         };
-        if (homeMap.isStyleLoaded()) apply();
-        else homeMap.once('load', apply);
+        onMapReady(homeMap, apply);
       });
     });
   }
@@ -1463,8 +1500,7 @@ var linhasCount = $('linhas-count');
         results.forEach(function (r) { if (r) paintHomeTrip(r); });
         fitHomeTrips(results.filter(Boolean));
       };
-      if (homeMap.isStyleLoaded()) apply();
-      else homeMap.once('load', apply);
+      onMapReady(homeMap, apply);
     });
   }
 
@@ -1565,6 +1601,7 @@ var linhasCount = $('linhas-count');
       clearInterval(poll);
       refreshNextTrip();
       renderHomeTrips();
+      renderDefaultRoute();
     }, 100);
   }
 
@@ -1605,6 +1642,7 @@ var linhasCount = $('linhas-count');
       startHomeWatch();
       refreshNextTrip();
       renderHomeTrips();
+      renderDefaultRoute();
       if (homeMap) {
         setTimeout(function () {
           try { homeMap.resize(); } catch (e) { /* noop */ }
@@ -1838,6 +1876,7 @@ var linhasCount = $('linhas-count');
         renderHome();
         renderLinhas();
         renderHomeTrips();
+        renderDefaultRoute();
         refreshNextTrip();
         if (location.hash.indexOf('#/rota/') === 0) router();
       })
