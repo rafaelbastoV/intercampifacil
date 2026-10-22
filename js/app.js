@@ -8,6 +8,8 @@
   'use strict';
 
   var STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+  var STYLE_URL_DARK = 'https://tiles.openfreemap.org/styles/dark';
+  var THEME_KEY = 'icf-theme';
 
   /* ---------- Referências do DOM ---------- */
   function $(id) { return document.getElementById(id); }
@@ -17,6 +19,9 @@
 
 var tripsList = $('trips-list');
 var tripsCount = $('trips-count');
+var emCursoSection = $('em-curso-section');
+var emCursoList = $('em-curso-list');
+var emCursoCount = $('em-curso-count');
 var linhasList = $('linhas-list');
 var linhasCount = $('linhas-count');
 
@@ -51,7 +56,16 @@ var linhasCount = $('linhas-count');
   var homeTripsSig = null;
   var homeTripsToken = 0;
 
+  var busMarker = null;
+  var busTrip = null;
+  var busRafId = 0;
+  var busLogAt = 0;
+
+  var emCursoTimer = 0;
+  var emCursoSig = null;
   var homeTimer = 0;
+
+  var rotaLineId = null;
 
   var toastEl = null;
 
@@ -121,6 +135,7 @@ var linhasCount = $('linhas-count');
      ============================================================= */
   var CLOCK_MODE = 'real';
   var SIMULATED_START_TIME = '20:45';
+  var DAY_MS = 86400000;
 
   var clockAnchorRealMs = null;
   var clockAnchorSimMs = null;
@@ -342,6 +357,7 @@ var linhasCount = $('linhas-count');
   }
 
   function renderHome() {
+    renderEmCurso();
     if (loadError) {
       tripsCount.textContent = '—';
       tripsList.innerHTML =
@@ -357,6 +373,56 @@ var linhasCount = $('linhas-count');
       return;
     }
     tripsList.innerHTML = picks.map(renderTripCard).join('');
+  }
+
+  /* =============================================================
+     Ônibus em curso (Home)
+     Mesmas linhas da aba Linhas, mas só as que estão percorrendo
+     o itinerário neste instante do relógio. O recorte reaproveita
+     tripWindow(), que já resolve meia-noite e o dia corrente.
+     ============================================================= */
+  function ongoingLines() {
+    var nowMs = getClockMs();
+    return lines.filter(function (l) {
+      var w = tripWindow({ pontos: l.pontos }, nowMs);
+      return !!w && w.active;
+    });
+  }
+
+  function renderEmCurso() {
+    if (!emCursoList) return;
+    if (loadError || !lines.length) {
+      emCursoSig = null;
+      emCursoSection.hidden = true;
+      return;
+    }
+    emCursoSection.hidden = false;
+
+    var ongoing = ongoingLines();
+    var sig = ongoing.map(function (l) { return l.id; }).join(',');
+    if (sig === emCursoSig) return;   /* nada mudou: não mexe no DOM */
+    emCursoSig = sig;
+
+    emCursoCount.textContent = !ongoing.length
+      ? 'nenhum'
+      : ongoing.length === 1 ? '1 em curso' : ongoing.length + ' em curso';
+
+    emCursoList.innerHTML = ongoing.length
+      ? ongoing.map(renderLinhaCard).join('')
+      : '<div class="trips-empty">Nenhum ônibus em curso neste horário.</div>';
+  }
+
+  /* A lista envelhece sozinha: o relógio segue andando enquanto a Home
+     está visível. Fora dela o timer é desligado, como o mapa da rota. */
+  function startEmCursoWatch() {
+    if (emCursoTimer) return;
+    emCursoTimer = setInterval(renderEmCurso, 15000);
+  }
+
+  function stopEmCursoWatch() {
+    if (!emCursoTimer) return;
+    clearInterval(emCursoTimer);
+    emCursoTimer = 0;
   }
 
   /* =============================================================
@@ -613,6 +679,7 @@ var linhasCount = $('linhas-count');
         var el = document.createElement('div');
         el.className = 'map-marker route-point' +
           (i === 0 ? ' origin' : i === line.pontos.length - 1 ? ' dest' : '');
+        el.innerHTML = busIconSVG(12);
         el.title = point.nome;
         var popup = new maplibregl.Popup({ offset: 18, closeButton: false })
           .setHTML('<strong>' + esc(point.nome) + '</strong>' + esc(point.hora));
@@ -642,6 +709,7 @@ var linhasCount = $('linhas-count');
 
     setView('rota');
     navActive('linhas');
+    rotaLineId = lineId;
 
     $('rota-title').textContent = line.titulo;
     $('rota-route').textContent = line.origem + ' → ' + line.destino;
@@ -663,7 +731,7 @@ var linhasCount = $('linhas-count');
 
     rotaMap = new maplibregl.Map({
       container: 'rota-map',
-      style: STYLE_URL,
+      style: styleUrl(),
       center: [-43.25, -22.90],
       zoom: 9.5,
       minZoom: 5,
@@ -677,10 +745,14 @@ var linhasCount = $('linhas-count');
       var valid = coords.filter(Boolean);
       if (valid.length < 2) {
         showToast('Não foi possível geolocalizar o trajeto.');
+        startBusTracking(line, coords);
         return;
       }
       roadGeometry(valid).then(function (route) {
         var geom = (route && route.coords) || valid;
+        /* O acompanhamento só começa com a via em mãos, para o ônibus
+           nascer no mesmo desenho da linha, sem correção visível depois. */
+        startBusTracking(line, coords, route);
         var apply = function () {
           if (!rotaMap || rotaMap._removed) return;
           addRouteToMap(geom, line, coords);
@@ -692,6 +764,7 @@ var linhasCount = $('linhas-count');
   }
 
   function cleanupRotaMap() {
+    stopBusTracking();
     if (rotaMap) {
       try { rotaMap._removed = true; rotaMap.remove(); } catch (e) { /* noop */ }
       rotaMap = null;
@@ -715,6 +788,290 @@ var linhasCount = $('linhas-count');
     });
   }
 
+  /* =============================================================
+     Localização estimada do ônibus
+     ============================================================= */
+
+  /* Converte a escala de horários da viagem para o domínio do relógio.
+     Suporta viagens que atravessam meia-noite: quando o horário de uma
+     parada volta para trás (00:xx depois de 23:xx), o dia é incrementado.
+     O bloco inteiro é deslocado para a ocorrência mais próxima de nowMs,
+     de modo que uma viagem que partiu "ontem" às 22:20 continue
+     reconhecida às 00:30 de hoje. */
+  function tripTimeline(trip, nowMs) {
+    var dayStart = clockDayStartMs();
+    var out = [];
+    var day = 0;
+    var prevMin = null;
+
+    trip.pontos.forEach(function (point) {
+      var min = toMin(point.hora);
+      if (prevMin !== null && min + 720 < prevMin) day += 1;
+      out.push({ nome: point.nome, hora: point.hora, day: day, min: min });
+      prevMin = min;
+    });
+
+    if (!out.length) return out;
+    var assumed = localTimeMs(dayStart, out[0].day, out[0].min);
+    var shiftDays = Math.round((nowMs - assumed) / DAY_MS);
+    out.forEach(function (p) {
+      p.ms = localTimeMs(dayStart, p.day + shiftDays, p.min);
+    });
+    return out;
+  }
+
+  /* Janela de operação da viagem: partiu? está em curso? já terminou? */
+  function tripWindow(trip, nowMs) {
+    var tl = tripTimeline(trip, nowMs);
+    if (!tl.length) return null;
+    var startMs = tl[0].ms;
+    var endMs = tl[tl.length - 1].ms;
+    return {
+      timeline: tl,
+      startMs: startMs,
+      endMs: endMs,
+      started: nowMs >= startMs,
+      active: nowMs >= startMs && nowMs <= endMs,
+      finished: nowMs > endMs
+    };
+  }
+
+  function isTripActive(trip, nowMs) {
+    var w = tripWindow(trip, nowMs);
+    return !!w && w.active;
+  }
+
+  /* Interpola linearmente entre dois pontos. Ordem MapLibre: [lng, lat]. */
+  function interpolateCoordinates(a, b, t) {
+    return [
+      a[0] + (b[0] - a[0]) * t,
+      a[1] + (b[1] - a[1]) * t
+    ];
+  }
+
+  /* ---------- Caminho da rua ----------
+     A reta entre duas paradas atravessa mar, morro e quarteirão. O
+     desenho que o OSRM devolve (a mesma geometria da linha desenhada no
+     mapa) é que precisa ser percorrido, então a posição do ônibus é
+     calculada sobre essa polyline, e não entre as coordenadas das paradas.
+
+     M_PER_DEG aparece igual nos dois eixos e se cancela no quociente;
+     o que de fato importa é o fator cos(latitude) da longitude. */
+  var M_PER_DEG = 111320;
+
+  /* Prepara a polyline da rua: comprimento acumulado em metros e, para cada
+     parada, o índice do vértice onde ela cai. */
+  function buildStreetPath(coords, stops) {
+    if (!coords || coords.length < 2) return null;
+
+    var lats = coords.map(function (c) { return c[1]; });
+    var lat0 = (Math.min.apply(null, lats) + Math.max.apply(null, lats)) / 2;
+    var kx = M_PER_DEG * Math.cos(lat0 * Math.PI / 180);
+    var ky = M_PER_DEG;
+
+    var acc = [0];
+    for (var i = 1; i < coords.length; i++) {
+      var dx = (coords[i][0] - coords[i - 1][0]) * kx;
+      var dy = (coords[i][1] - coords[i - 1][1]) * ky;
+      acc.push(acc[i - 1] + Math.sqrt(dx * dx + dy * dy));
+    }
+
+    /* Cada parada é projetada no vértice mais próximo *à frente*. A busca
+       só avança de propósito: em linha de ida e volta a parada final é a
+       ocorrência do fim do trajeto, não a do começo. */
+    var stopIndex = [];
+    var cursor = 0;
+    (stops || []).forEach(function (stop) {
+      var best = cursor;
+      var bestD = Infinity;
+      if (stop) {
+        for (var v = cursor; v < coords.length; v++) {
+          var ddx = (coords[v][0] - stop[0]) * kx;
+          var ddy = (coords[v][1] - stop[1]) * ky;
+          var d2 = ddx * ddx + ddy * ddy;
+          if (d2 < bestD) { bestD = d2; best = v; }
+        }
+      }
+      stopIndex.push(best);
+      cursor = best;
+    });
+
+    return { coords: coords, acc: acc, stopIndex: stopIndex };
+  }
+
+  /* Ponto sobre a polyline, t da distância entre os vértices a e b.
+     O tempo continua vindo do horário das paradas; aqui só respeitamos o
+     desenho da via. Devolve null quando o trecho não tem comprimento. */
+  function positionOnPath(path, a, b, t) {
+    var last = path.coords.length - 1;
+    var from = Math.max(0, Math.min(last, a));
+    var to = Math.max(from, Math.min(last, b));
+    var span = path.acc[to] - path.acc[from];
+    if (span <= 0) return null;
+
+    var target = path.acc[from] + span * t;
+    var i = from;
+    while (i < to && path.acc[i + 1] < target) i++;
+    var seg = path.acc[i + 1] - path.acc[i];
+    var local = seg > 0 ? (target - path.acc[i]) / seg : 0;
+    return interpolateCoordinates(path.coords[i], path.coords[i + 1], Math.max(0, Math.min(1, local)));
+  }
+
+  /* Posição estimada: null se a viagem não estiver em curso. */
+  function getBusPosition(trip, nowMs) {
+    var pos = busPositionAt(trip, nowMs);
+    return pos ? pos.coords : null;
+  }
+
+  function busPositionAt(trip, nowMs) {
+    var w = tripWindow(trip, nowMs);
+    if (!w || !w.active) return null;
+
+    var tl = w.timeline;
+    var coords = trip.coords || [];
+    var path = trip.path;
+
+    /* Só os pontos com coordenada conhecida entram no trajeto. */
+    var legs = [];
+    for (var i = 0; i < tl.length; i++) {
+      if (coords[i]) {
+        legs.push({ nome: tl[i].nome, hora: tl[i].hora, ms: tl[i].ms, coords: coords[i] });
+      }
+    }
+    if (!legs.length) return null;
+
+    var seg = 0;
+    for (var j = legs.length - 1; j >= 0; j--) {
+      if (legs[j].ms <= nowMs) { seg = j; break; }
+    }
+
+    /* Índice onde cada perna entra e sai na polyline da via. */
+    var a = path && path.stopIndex[seg];
+    var b = path && path.stopIndex[Math.min(seg + 1, path.stopIndex.length - 1)];
+    var onRoad = typeof a === 'number' && typeof b === 'number' && b > a;
+
+    var from = legs[seg];
+    var to = legs[Math.min(seg + 1, legs.length - 1)];
+    if (from === to) {
+      /* Última parada: encosta no ponto em que a via passa por ela, e não
+         na coordenada bruta do geocodificador (que pode estar dezenas de
+         metros fora da rua). */
+      return {
+        coords: typeof a === 'number' ? path.coords[a] : from.coords,
+        from: from,
+        to: to,
+        progress: 1,
+        onRoad: typeof a === 'number'
+      };
+    }
+
+    var span = to.ms - from.ms;
+    var t = span > 0 ? (nowMs - from.ms) / span : 1;
+    t = Math.max(0, Math.min(1, t));
+
+    /* Caminho da rua quando existe; senão reta entre as duas paradas. */
+    var pos = onRoad ? positionOnPath(path, a, b, t) : null;
+    if (!pos) pos = interpolateCoordinates(from.coords, to.coords, t);
+
+    return {
+      coords: pos,
+      from: from,
+      to: to,
+      progress: t,
+      onRoad: onRoad
+    };
+  }
+
+  function createBusMarker(trip) {
+    var el = document.createElement('div');
+    el.className = 'map-marker bus-marker ' + busColorClass(trip.cor);
+    el.innerHTML = busIconSVG(18);
+    el.title = 'Ônibus — localização estimada';
+    return new maplibregl.Marker({ element: el });
+  }
+
+  function removeBusMarker() {
+    if (busMarker) {
+      try { busMarker.remove(); } catch (e) { /* noop */ }
+      busMarker = null;
+    }
+  }
+
+  /* Inicia o acompanhamento da viagem. Garante um único loop e um único
+     marcador: qualquer chamada anterior é cancelada antes de começar.
+     `route` é o retorno do OSRM (geometria da via + onde cada parada foi
+     encaixada nela). Sem ele, cai no trajeto em linha reta entre paradas. */
+  function startBusTracking(trip, coords, route) {
+    stopBusTracking();
+    if (!trip || !rotaMap) return;
+    trip.coords = coords;
+
+    var known = [];
+    (trip.pontos || []).forEach(function (p, i) {
+      if (coords && coords[i]) known.push(coords[i]);
+    });
+    trip.path = buildStreetPath(
+      route && route.coords ? route.coords : known,
+      route && route.stops ? route.stops : known
+    );
+
+    busTrip = trip;
+    busTick();
+  }
+
+  function stopBusTracking() {
+    if (busRafId) {
+      cancelAnimationFrame(busRafId);
+      busRafId = 0;
+    }
+    removeBusMarker();
+    busTrip = null;
+    busLogAt = 0;
+  }
+
+  function busTick() {
+    busRafId = 0;
+    if (!busTrip || !rotaMap || rotaMap._removed) return;
+
+    var nowMs = getClockMs();
+    var w = tripWindow(busTrip, nowMs);
+
+    if (!w || w.finished) {
+      removeBusMarker();
+      return;
+    }
+
+    var pos = busPositionAt(busTrip, nowMs);
+    if (pos) {
+      if (!busMarker) {
+        busMarker = createBusMarker(busTrip).setLngLat(pos.coords).addTo(rotaMap);
+      } else {
+        busMarker.setLngLat(pos.coords);
+      }
+      logBusPosition(nowMs, pos);
+    } else {
+      removeBusMarker();
+    }
+
+    busRafId = requestAnimationFrame(busTick);
+  }
+
+  /* Log de depuração: no máximo uma vez por segundo, para não inundar
+     o console a 60 quadros por segundo. */
+  function logBusPosition(nowMs, pos) {
+    var realNow = Date.now();
+    if (realNow - busLogAt < 1000) return;
+    busLogAt = realNow;
+    console.log(
+      '[Intercampi] Hora simulada: ' + getSimulatedTime() +
+      '\n[Intercampi] Viagem: ' + busTrip.nome + ' (' + busTrip.id + ')' +
+      '\n[Intercampi] Entre: ' + pos.from.nome + ' (' + pos.from.hora + ') -> ' +
+        pos.to.nome + ' (' + pos.to.hora + ')' +
+      '\n[Intercampi] Progresso: ' + Math.round(pos.progress * 100) + '%' +
+      '\n[Intercampi] Via: ' + (pos.onRoad ? 'seguindo a rua' : 'reta entre paradas') +
+      '\n[Intercampi] Coordenadas: [' + pos.coords[0].toFixed(5) + ', ' + pos.coords[1].toFixed(5) + ']'
+    );
+  }
 
   /* =============================================================
      Mapa da Home
@@ -722,7 +1079,7 @@ var linhasCount = $('linhas-count');
   function initHomeMap() {
     homeMap = new maplibregl.Map({
       container: 'home-map',
-      style: STYLE_URL,
+      style: styleUrl(),
       center: [-43.22, -22.89],
       zoom: 9.4,
       minZoom: 5,
@@ -1017,6 +1374,7 @@ var linhasCount = $('linhas-count');
               if (normalize(point.nome) === normalize(destStopName)) return;
               var el = document.createElement('div');
               el.className = 'map-marker route-point' + (i === 0 ? ' origin' : '');
+              el.innerHTML = busIconSVG(12);
               el.title = point.nome;
               var popup = new maplibregl.Popup({ offset: 16, closeButton: false })
                 .setHTML('<strong>' + esc(point.nome) + '</strong>' + esc(point.hora));
@@ -1138,6 +1496,7 @@ var linhasCount = $('linhas-count');
         if (!r.coords[i]) return;
         var el = document.createElement('div');
         el.className = 'map-marker route-point' + (i === 0 ? ' origin' : '');
+        el.innerHTML = busIconSVG(12);
         el.title = point.nome;
         var popup = new maplibregl.Popup({ offset: 14, closeButton: false })
           .setHTML('<strong>' + esc(point.nome) + '</strong>' + esc(point.hora));
@@ -1174,6 +1533,65 @@ var linhasCount = $('linhas-count');
   }
 
   /* =============================================================
+     Modo escuro
+     ============================================================= */
+  function isThemeDark() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  }
+
+  function styleUrl() {
+    return isThemeDark() ? STYLE_URL_DARK : STYLE_URL;
+  }
+
+  /* O basemap acompanha o tema. Os overlays (rotas e marcadores)
+     somem junto com o estilo antigo e são redesenhados quando o
+     novo estilo estiver pronto. A câmera é preservada pelo setStyle. */
+  function restyleHomeMap() {
+    if (!homeMap || homeMap._removed) return;
+    clearHomeRoute();
+    clearHomeTrips();
+    homeTripsSig = null;
+    try { homeMap.setStyle(styleUrl()); } catch (e) { return; }
+
+    var tries = 0;
+    var poll = setInterval(function () {
+      if (!homeMap || homeMap._removed) { clearInterval(poll); return; }
+      var ready = false;
+      try { ready = homeMap.isStyleLoaded(); } catch (e) { ready = false; }
+      if (!ready) {
+        if (++tries > 100) clearInterval(poll);   /* estilos remotos podem falhar */
+        return;
+      }
+      clearInterval(poll);
+      refreshNextTrip();
+      renderHomeTrips();
+    }, 100);
+  }
+
+  /* A página de rota cria o mapa a cada abertura: reconstruir é o
+     caminho mais simples para trocar o estilo sem perder o itinerário. */
+  function restyleRotaMap() {
+    if (currentView === 'rota' && rotaLineId) showRouteView(rotaLineId);
+  }
+
+  function syncThemeBtn(dark) {
+    var btn = $('theme-btn');
+    if (!btn) return;
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.title = dark ? 'Modo claro' : 'Modo escuro';
+    btn.setAttribute('aria-label', dark ? 'Ativar modo claro' : 'Ativar modo escuro');
+  }
+
+  function applyTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    try { localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light'); } catch (e) { /* noop */ }
+    syncThemeBtn(dark);
+
+    restyleHomeMap();
+    restyleRotaMap();
+  }
+
+  /* =============================================================
      Navegação / views / modal / toast
      ============================================================= */
   function setView(name) {
@@ -1182,6 +1600,8 @@ var linhasCount = $('linhas-count');
     });
     currentView = name;
     if (name === 'home') {
+      startEmCursoWatch();
+      renderEmCurso();
       startHomeWatch();
       refreshNextTrip();
       renderHomeTrips();
@@ -1191,6 +1611,7 @@ var linhasCount = $('linhas-count');
         }, 60);
       }
     } else {
+      stopEmCursoWatch();
       stopHomeWatch();
     }
     window.scrollTo(0, 0);
@@ -1306,6 +1727,13 @@ var linhasCount = $('linhas-count');
     });
 
     locateBtn.addEventListener('click', locateMe);
+
+    var themeBtn = $('theme-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function () { applyTheme(!isThemeDark()); });
+      /* estado inicial (o <head> já aplicou o atributo; o botão precisa acompanhar) */
+      syncThemeBtn(isThemeDark());
+    }
 
     destInput.addEventListener('focus', function () {
       renderSuggest(destInput.value);
